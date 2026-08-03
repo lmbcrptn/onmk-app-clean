@@ -190,6 +190,8 @@ export default function Home() {
           {warnings.join("\n")}
         </div>
       )}
+
+      <p className="footer">создано lmbcrptn ai</p>
     </div>
   );
 }
