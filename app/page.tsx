@@ -1,8 +1,45 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type Mode = "auto" | "days" | "weeks";
+
+interface HistoryEntry {
+  id: string;
+  generatedAt: string; // ISO
+  filename: string;
+  periodLabel: string;
+  modeLabel: string;
+}
+
+const HISTORY_KEY = "onmk_report_history";
+
+function loadHistory(): HistoryEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(entries: HistoryEntry[]) {
+  try {
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+  } catch {
+    /* ignore */
+  }
+}
+
+function fmtDateTime(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}.${mm}.${d.getFullYear()} ${hh}:${min}`;
+}
 
 export default function Home() {
   const [files, setFiles] = useState<File[]>([]);
@@ -15,7 +52,29 @@ export default function Home() {
   const [checkWarnings, setCheckWarnings] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
   const [drag, setDrag] = useState(false);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setHistory(loadHistory());
+  }, []);
+
+  function resetForm() {
+    setFiles([]);
+    setStart("");
+    setEnd("");
+    setMode("auto");
+    setError(null);
+    setWarnings([]);
+    setCheckWarnings([]);
+    setSuccess(false);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function clearHistory() {
+    setHistory([]);
+    saveHistory([]);
+  }
 
   function addFiles(list: FileList | null) {
     if (!list) return;
@@ -97,6 +156,23 @@ export default function Home() {
       URL.revokeObjectURL(url);
 
       setSuccess(true);
+
+      const modeLabel =
+        mode === "days"
+          ? "по дням"
+          : mode === "weeks"
+          ? "по неделям"
+          : "автоматически";
+      const entry: HistoryEntry = {
+        id: `${Date.now()}`,
+        generatedAt: new Date().toISOString(),
+        filename,
+        periodLabel: `${start} — ${end}`,
+        modeLabel,
+      };
+      const updated = [entry, ...history].slice(0, 50);
+      setHistory(updated);
+      saveHistory(updated);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -106,7 +182,7 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>Сводки ОНМК</h1>
+      <h1>Отчеты ОНМК</h1>
       <p className="subtitle">
         Загрузите дневные и/или недельные сводки (программа определит тип
         каждого файла сама), выберите период — получите недельную или
@@ -186,9 +262,14 @@ export default function Home() {
         </p>
       </div>
 
-      <button className="btn" disabled={loading} onClick={handleSubmit}>
-        {loading ? "Формирование..." : "Сформировать сводку"}
-      </button>
+      <div className="row">
+        <button className="btn" disabled={loading} onClick={handleSubmit}>
+          {loading ? "Формирование..." : "Сформировать сводку"}
+        </button>
+        <button className="btn btnSecondary" type="button" onClick={resetForm}>
+          Сбросить
+        </button>
+      </div>
 
       {error && <div className="error">{error}</div>}
       {success && !error && (
@@ -217,7 +298,32 @@ export default function Home() {
         </div>
       )}
 
-      <p className="footer">создано lmbcrptn ai</p>
+      <div className="card">
+        <div className="historyHeader">
+          <h2>История сводок</h2>
+          {history.length > 0 && (
+            <button className="linkBtn" type="button" onClick={clearHistory}>
+              Очистить
+            </button>
+          )}
+        </div>
+        {history.length === 0 ? (
+          <p className="hint">Пока ничего не сформировано.</p>
+        ) : (
+          <ul className="historyList">
+            {history.map((h) => (
+              <li key={h.id}>
+                <div className="historyMain">{h.filename}</div>
+                <div className="historyMeta">
+                  {fmtDateTime(h.generatedAt)} · период {h.periodLabel} · {h.modeLabel}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <p className="footer">создано lmbcrptn ai · версия 1.0</p>
     </div>
   );
 }
