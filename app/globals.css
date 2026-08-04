@@ -162,3 +162,24 @@ select {
   color: #aaa;
   margin-top: 32px;
 }
+
+.checkWarnings {
+  background: #fdecec;
+  border: 1px solid #f3aaaa;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #8a1a1a;
+  margin-top: 14px;
+}
+.checkWarnings .hint {
+  color: #8a1a1a;
+  margin: 4px 0 8px;
+}
+.checkWarnings ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.checkWarnings li {
+  margin-bottom: 8px;
+}
