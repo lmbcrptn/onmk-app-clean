@@ -323,7 +323,7 @@ export default function Home() {
         )}
       </div>
 
-      <p className="footer">создано lmbcrptn ai · версия 1.0</p>
+      <p className="footer">制作 lmbcrptn ai · версия 1.0</p>
     </div>
   );
 }
