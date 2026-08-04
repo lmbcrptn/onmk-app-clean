@@ -2,8 +2,8 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Сводки ОНМК",
-  description: "Формирование недельных/месячных сводок по дневным файлам ОНМК",
+  title: "Отчеты ОНМК",
+  description: "Формирование недельных/месячных отчётов по дневным файлам ОНМК",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
