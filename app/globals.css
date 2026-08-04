@@ -80,6 +80,10 @@ h1 {
   gap: 12px;
   flex-wrap: wrap;
 }
+.row .btn {
+  width: auto;
+  flex: 1;
+}
 
 label {
   display: block;
@@ -154,6 +158,52 @@ select {
   font-size: 12px;
   color: #888;
   margin-top: 6px;
+}
+
+.btnSecondary {
+  background: white;
+  color: #444;
+  border: 1px solid #ccd2d9;
+}
+.btnSecondary:hover {
+  background: #f4f6f8;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.historyHeader h2 {
+  margin: 0;
+}
+
+.linkBtn {
+  border: none;
+  background: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+.historyList li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.historyMain {
+  font-size: 14px;
+  color: #1a1a1a;
+}
+.historyMeta {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
 }
 
 .footer {
