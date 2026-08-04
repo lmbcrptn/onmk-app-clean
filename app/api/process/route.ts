@@ -10,6 +10,7 @@ import {
   weekRangeLabel,
 } from "@/lib/aggregate";
 import { buildWorkbookFile } from "@/lib/buildWorkbook";
+import { checkAllColumns } from "@/lib/validate";
 import { DayAgg, ColumnAgg } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -135,6 +136,7 @@ export async function POST(req: NextRequest) {
     }
 
     const fileBuffer = buildWorkbookFile(columns, mode);
+    const checkWarnings = checkAllColumns(columns);
 
     const label =
       mode === "days"
@@ -158,6 +160,7 @@ export async function POST(req: NextRequest) {
           displayFilename
         )}`,
         "X-Warnings": encodeURIComponent(JSON.stringify(parseWarnings)),
+        "X-Check-Warnings": encodeURIComponent(JSON.stringify(checkWarnings)),
       },
     });
   } catch (e: unknown) {
