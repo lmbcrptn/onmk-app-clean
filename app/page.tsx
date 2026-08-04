@@ -12,6 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [checkWarnings, setCheckWarnings] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,6 +37,7 @@ export default function Home() {
   async function handleSubmit() {
     setError(null);
     setWarnings([]);
+    setCheckWarnings([]);
     setSuccess(false);
 
     if (!files.length) {
@@ -66,6 +68,15 @@ export default function Home() {
       if (warningsHeader) {
         try {
           setWarnings(JSON.parse(decodeURIComponent(warningsHeader)));
+        } catch {
+          /* ignore */
+        }
+      }
+
+      const checkWarningsHeader = res.headers.get("X-Check-Warnings");
+      if (checkWarningsHeader) {
+        try {
+          setCheckWarnings(JSON.parse(decodeURIComponent(checkWarningsHeader)));
         } catch {
           /* ignore */
         }
@@ -182,6 +193,21 @@ export default function Home() {
       {error && <div className="error">{error}</div>}
       {success && !error && (
         <div className="success">Готово — файл скачан.</div>
+      )}
+      {checkWarnings.length > 0 && (
+        <div className="checkWarnings">
+          <strong>⚠ Расхождения в столбце «Проверка»</strong>
+          <p className="hint">
+            Числа в итоговом файле не сходятся по внутренним контрольным
+            соотношениям. Скорее всего дело в одном из исходных дневных
+            файлов — детали ниже:
+          </p>
+          <ul>
+            {checkWarnings.map((w, i) => (
+              <li key={i}>{w}</li>
+            ))}
+          </ul>
+        </div>
       )}
       {warnings.length > 0 && (
         <div className="warnings">
